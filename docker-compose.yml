@@ -1,0 +1,38 @@
+
+services:
+  app:
+    build: .
+    container_name: trello_app
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: development
+      APP_KEY: ${APP_KEY}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: app
+      DB_USER: app
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: trello_postgres
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

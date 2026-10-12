@@ -10,6 +10,7 @@ use App\Model\Demo;
 
 // 1. Eloquent
 Database::bootEloquent();
+$appName = \App\Config::get('name');
 
 // 2. Логгер
 $logger = Logger::get();
@@ -33,7 +34,14 @@ if ($requestMethod === 'POST' && isset($_POST['note'])) {
     } catch (\Throwable $e) {
         $logger->error('Insert failed', ['exception' => $e->getMessage()]);
     }
+    http_response_code(303);
     header('Location: /');
+
+    $logger->info('Outgoing HTTP response', [
+        'status' => 303,
+        'body' => '',
+    ]);
+
     exit;
 }
 
